@@ -153,6 +153,7 @@ namespace VimaV2
 
 
             #endregion
+
             #region Carrinho
             app.MapPost("/carrinho/criar", async (VimaV2DbContext dbContext, Carrinho carrinho) =>
             {
