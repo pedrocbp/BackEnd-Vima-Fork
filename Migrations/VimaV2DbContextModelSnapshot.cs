@@ -31,10 +31,6 @@ namespace VimaV2.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ImageURL")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<decimal>("Preco")
                         .HasColumnType("decimal(65,30)");
 
@@ -44,6 +40,10 @@ namespace VimaV2.Migrations
 
                     b.Property<int>("Quantidade")
                         .HasColumnType("int");
+
+                    b.Property<string>("Tamanhos")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -97,10 +97,6 @@ namespace VimaV2.Migrations
 
                     b.Property<int>("Estoque")
                         .HasColumnType("int");
-
-                    b.Property<string>("ImageURL")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<string>("Imagens")
                         .IsRequired()
