@@ -13,8 +13,8 @@ namespace VimaV2.Models
         public string Tamanhos { get; set; }
         public string Product { get; set; }
         public decimal Preco { get; set; }
+        public string ImageURL { get; set; }
 
-  
         private Carrinho() { }
         public Carrinho(int quantidade, string product, decimal preco)
         {
