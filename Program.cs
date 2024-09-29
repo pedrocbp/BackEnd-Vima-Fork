@@ -161,26 +161,53 @@ namespace VimaV2
                 await dbContext.SaveChangesAsync();
                 return Results.Created($"/carrinho/{carrinho.Id}", carrinho);
             });
-            app.MapPut("carrinho/update/{Id}", (VimaV2DbContext dbContext, int Id, Carrinho carrinho) =>
+            app.MapPut("carrinho/update/{Id}", async (VimaV2DbContext dbContext, int Id, Carrinho carrinho) =>
             {
-                // Encontra o produto especificado buscando pelo Id enviado
-                Carrinho? carrinhoEncontrado = dbContext.Carrinhos.Find(Id);
-                if (carrinhoEncontrado is null)
+                try
                 {
-                    // Indica que o produto não foi encontrado
-                    return Results.NotFound();
+                    Carrinho? carrinhoEncontrado = await dbContext.Carrinhos.FindAsync(Id);
+                    if (carrinhoEncontrado is null)
+                    {
+                        return Results.NotFound();
+                    }
+
+                    // Atualize apenas os campos que foram fornecidos na requisição
+                    if (carrinho.Quantidade != default(int) && carrinho.Quantidade > 0)
+                    {
+                        carrinhoEncontrado.Quantidade = carrinho.Quantidade;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(carrinho.Tamanhos))
+                    {
+                        carrinhoEncontrado.Tamanhos = carrinho.Tamanhos;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(carrinho.Product))
+                    {
+                        carrinhoEncontrado.Product = carrinho.Product;
+                    }
+
+                    if (carrinho.Preco != default(decimal) && carrinho.Preco > 0)
+                    {
+                        carrinhoEncontrado.Preco = carrinho.Preco;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(carrinho.ImageURL))
+                    {
+                        carrinhoEncontrado.ImageURL = carrinho.ImageURL;
+                    }
+
+                    await dbContext.SaveChangesAsync();
+
+                    return TypedResults.NoContent();
                 }
-
-                // Mantém o Id do produto como o Id existente
-              
-                // Atualiza a lista de produtos
-                dbContext.Entry(carrinhoEncontrado).CurrentValues.SetValues(carrinho);
-
-                // Salva as alterações no banco de dados
-                dbContext.SaveChanges();
-
-                return TypedResults.NoContent();
+                catch (Exception ex)
+                {
+                    return Results.Problem(ex.Message);
+                }
             });
+
+
 
             app.MapDelete("/carrinho/delete/{Id}", (VimaV2DbContext dbContext, int Id) =>
             {
