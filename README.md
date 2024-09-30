@@ -3,6 +3,8 @@ O "VIMA" é um e-commerce desenvolvido com o objetivo de solucionar uma dor da T
 Ou seja, quanto mais produtos forem adicionados, maior será o desconto aplicado no valor total, respeitando um limite máximo de desconto.
 
 
+# Video Funcionamento
+Link: [https://drive.google.com/file/d/1oqDHzpkxIEj1FupEti6gD79JQqBAbdoK/view?usp=drive_link]
 
 # Guia de Configuração - VIMA
 
