@@ -1,3 +1,9 @@
+# Sobre 
+O "VIMA" é um e-commerce desenvolvido com o objetivo de solucionar uma dor da Tray: aumentar o ticket médio durante uma determinada compra. Com isso em mente, tivemos a ideia de aplicar um desconto progressivo conforme a quantidade de produtos adicionados no carrinho. 
+Ou seja, quanto mais produtos forem adicionados, maior será o desconto aplicado no valor total, respeitando um limite máximo de desconto.
+
+
+
 # Guia de Configuração - VIMA
 
 ## 1. Download dos Projetos BackEnd e FrontEnd:
