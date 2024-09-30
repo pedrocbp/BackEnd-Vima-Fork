@@ -171,7 +171,6 @@ namespace VimaV2
                         return Results.NotFound();
                     }
 
-                    // Atualize apenas os campos que foram fornecidos na requisição
                     if (carrinho.Quantidade != default(int) && carrinho.Quantidade > 0)
                     {
                         carrinhoEncontrado.Quantidade = carrinho.Quantidade;
