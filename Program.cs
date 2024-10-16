@@ -4,6 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using VimaV2.Util;
 
 namespace VimaV2
 {
@@ -14,6 +19,8 @@ namespace VimaV2
             // Criação da WebApplication
             var builder = WebApplication.CreateBuilder(args);
 
+            var configuration = builder.Configuration;
+
             // Configuração do Swagger
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -23,6 +30,32 @@ namespace VimaV2
                 options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), ServerVersion.Parse("8.0.37-mysql")));
 
             builder.Services.AddScoped<VimaV2DbContext>();
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                var key = Encoding.ASCII.GetBytes(configuration["Jwt:Key"]);
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidAudience = configuration["Jwt:Audience"],
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+            });
 
             // Add services to the container.
             builder.Services.AddControllers();
@@ -51,9 +84,24 @@ namespace VimaV2
 
             app.UseCors("AllowAllOrigins"); // Adicione isso antes de UseAuthorization
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
 
             app.MapControllers();
+
+            #region Login
+            app.MapPost("/login", (VimaV2DbContext dbContext, User user) =>
+            {
+                if (user == null)
+                {
+                    return Results.BadRequest("Email ou senha incorretas.");
+                }
+                var token = JwtTools.GerarToken(user, configuration);
+
+                return Results.Ok(new { token });
+            });
+            #endregion
 
             #region Users
             // Rotas de usuários
@@ -84,7 +132,7 @@ namespace VimaV2
                 return Results.Created($"/contact/{contato.Id}", contato);
             });
             #endregion
-
+            
             #region Produto
             // Rotas de produto
             app.MapGet("/produtos", async (VimaV2DbContext dbContext) =>
