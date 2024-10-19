@@ -91,27 +91,16 @@ namespace VimaV2
             app.MapControllers();
 
             #region Login
-            app.MapPost("/login", async (VimaV2DbContext dbContext, UserLoginDto loginDto, IConfiguration configuration) =>
+            app.MapPost("/login", (VimaV2DbContext dbContext, User user) =>
             {
-                if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
+                if (user == null)
                 {
-                    return Results.BadRequest("Email ou senha não podem estar vazios.");
+                    return Results.BadRequest("Email ou senha incorretas.");
                 }
-
-                // Verifica se o usuário existe no banco de dados
-                var user = await dbContext.Users.SingleOrDefaultAsync(u => u.Email == loginDto.Email);
-
-                if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
-                {
-                    return Results.BadRequest("Email ou senha incorretos.");
-                }
-
-                // Gera o token JWT para o usuário autenticado
                 var token = JwtTools.GerarToken(user, configuration);
 
                 return Results.Ok(new { token });
             });
-
             #endregion
 
             #region Users
@@ -143,7 +132,7 @@ namespace VimaV2
                 return Results.Created($"/contact/{contato.Id}", contato);
             });
             #endregion
-            
+
             #region Produto
             // Rotas de produto
             app.MapGet("/produtos", async (VimaV2DbContext dbContext) =>
