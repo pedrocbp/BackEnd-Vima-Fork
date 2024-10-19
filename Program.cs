@@ -91,16 +91,27 @@ namespace VimaV2
             app.MapControllers();
 
             #region Login
-            app.MapPost("/login", (VimaV2DbContext dbContext, User user) =>
+            app.MapPost("/login", async (VimaV2DbContext dbContext, UserLoginDto loginDto, IConfiguration configuration) =>
             {
-                if (user == null)
+                if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
                 {
-                    return Results.BadRequest("Email ou senha incorretas.");
+                    return Results.BadRequest("Email ou senha não podem estar vazios.");
                 }
+
+                // Verifica se o usuário existe no banco de dados
+                var user = await dbContext.Users.SingleOrDefaultAsync(u => u.Email == loginDto.Email);
+
+                if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+                {
+                    return Results.BadRequest("Email ou senha incorretos.");
+                }
+
+                // Gera o token JWT para o usuário autenticado
                 var token = JwtTools.GerarToken(user, configuration);
 
                 return Results.Ok(new { token });
             });
+
             #endregion
 
             #region Users
