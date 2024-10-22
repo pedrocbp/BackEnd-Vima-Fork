@@ -91,13 +91,17 @@ namespace VimaV2
             app.MapControllers();
 
             #region Login
-            app.MapPost("/login", (VimaV2DbContext dbContext, User user) =>
+            app.MapPost("/login", async (VimaV2DbContext dbContext, User user) =>
             {
-                if (user == null)
+                var usuarioEncontrado = await dbContext.Usuarios
+                    .FirstOrDefaultAsync(u => u.Email == user.Email);
+
+                if (usuarioEncontrado == null || usuarioEncontrado.Senha != user.Senha)
                 {
-                    return Results.BadRequest("Email ou senha incorretas.");
+                    return Results.BadRequest("Email ou senha incorretos.");
                 }
-                var token = JwtTools.GerarToken(user, configuration);
+
+                var token = JwtTools.GerarToken(usuarioEncontrado, configuration);
 
                 return Results.Ok(new { token });
             });
