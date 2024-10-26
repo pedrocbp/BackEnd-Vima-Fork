@@ -20,6 +20,9 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="Application\" />
+    <Folder Include="DTOs\" />
+    <Folder Include="Repositorys\" />
   </ItemGroup>
 
 </Project>
